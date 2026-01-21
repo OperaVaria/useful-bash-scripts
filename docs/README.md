@@ -4,11 +4,10 @@ A set of miscellaneous Bash shell scripts, mainly centered around task automatio
 
 **Uploading in progress**
 
-## Rclone Automount
+## rclone-automount
 
-This script helps the Linux user to automate mounting cloud storages via
-the [rclone](https://rclone.org/) command line application. The template is meant to be filled out
-with the proper details and best used as a startup script.
+This script helps the Linux user to automate mounting cloud storages via the [rclone](https://rclone.org/) command line application.
+It is recommended to be used as a startup script. All configuration is handled by the .conf file.
 
 Tested on: CachyOS, GNU bash, 5.3.9(1)-release
 
