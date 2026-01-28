@@ -12,8 +12,8 @@
 # by executing the following steps: cleaning cache directory, emptying Trash,
 # and removing older temp files, logs, and journals. It also clears the pacman
 # cache, and can check for orphaned packages, if needed. The severity of the
-# cleanup is set by command line arguments. The script can only properly run
-# with sudo privileges.
+# cleanup (normal or "aggressive" level) is set by command line arguments.
+# The script can only properly run with sudo privileges.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
@@ -171,7 +171,7 @@ cln_pacman() {
   echo "📦 Removing orphan packages"
   orphans=$(pacman -Qtdq || true)
   if [[ -n "${orphans}" ]]; then
-    sudo pacman -Rns -- ${orphans}
+    sudo pacman -Rns -- "${orphans}"
   else
     echo "   No orphans found."
   fi
@@ -231,6 +231,7 @@ main() {
   echo -e "${GREEN}✅ Cleanup complete${NC}"
   echo "Free space before: ${space_before}"
   echo "Free space after:  ${space_after}"
+  
   return 0
 }
 

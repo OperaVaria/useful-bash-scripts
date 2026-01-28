@@ -11,8 +11,9 @@
 # The script performs an automated system cleanup on a Debian-based Linux
 # system, by executing the following steps: cleaning cache directory, emptying
 # Trash, and removing older temp files, logs, and journals. It can also clear
-# the APT cache, if required. The severity of the cleanup is set by command
-# line arguments. The script can only properly run with sudo privileges.
+# the APT cache, if required. The severity of the  cleanup (normal or
+# "aggressive" level) is set by command line arguments. The script can only
+# properly run with sudo privileges.
 #
 # Tested on: MX Linux 23.5, GNU bash, 5.2.15(1)-release
 #
@@ -68,7 +69,7 @@ set_mode() {
         echo
         echo "OPTIONS:"
         echo "  --aggressive    Run with more severe removal settings."
-        echo "  --no-apt        Skip package cleanup."
+        echo "  --no-apt        Skip package cache cleanup."
         echo "  --help          Show this help."
         return 1
         ;;
@@ -153,7 +154,7 @@ cln_logs() {
 }
 
 #######################################
-# Function to run APT clean routine.
+# Function to run APT clean routines.
 #######################################
 cln_apt() {
   echo "📦 Cleaning APT cache"    
@@ -223,6 +224,7 @@ main() {
   echo -e "${GREEN}✅ Cleanup complete${NC}"
   echo "Free space before: ${space_before}"
   echo "Free space after:  ${space_after}"
+  
   return 0
 }
 

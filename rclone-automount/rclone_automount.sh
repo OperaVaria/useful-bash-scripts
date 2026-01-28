@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # rclone automount script for Bash
 # Created by OperaVaria
@@ -10,9 +10,9 @@
 #
 # This script helps the Linux user to automate mounting cloud storages via
 # the rclone command line application. It is recommended to be used as a
-# startup script. All configuration is handled by the .conf file.
+# startup script. All configuration is handled by the included .conf file.
 #
-# Tested on: CachyOS, GNU bash, 5.3.9(1)-release
+# Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
 # Licence:
 # Copyright © 2026, OperaVaria
@@ -87,6 +87,7 @@ val_var() {
   [[ -n "${CLOUD_DIR:-}" ]] || { err "Missing CLOUD_DIR in config"; return 1; }
   [[ -n "${LOG_DIR:-}" ]]   || { err "Missing LOG_DIR in config"; return 1; }
 
+  # Arrays
   declare -p REMOTES >/dev/null 2>&1     \
   || { err "Missing REMOTES array"; return 1; }
   declare -p MOUNTS >/dev/null 2>&1      \
