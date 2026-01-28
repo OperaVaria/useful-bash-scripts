@@ -91,7 +91,7 @@ hr() {
 
 #######################################
 # Function to check the size of the target.
-# Prints 0 if target does not exit.
+# Prints 0 if target does not exist.
 # Arguments:
 #   Target path
 #######################################

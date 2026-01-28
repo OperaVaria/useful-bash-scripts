@@ -90,7 +90,7 @@ hr() {
 
 #######################################
 # Function to check the size of the target.
-# Prints 0 if target does not exit.
+# Prints 0 if target does not exist.
 # Arguments:
 #   Target path
 #######################################
@@ -196,7 +196,7 @@ main() {
   # Sudo needed for most steps.
   sudo -v
 
-# Initial prompt.
+  # Initial prompt.
   space_before=$(df -h --output=avail / | tail -1 | tr -d ' ')
   echo -e "${GREEN}🧹 Smart Cleanup Script (Debian)${NC}"
   echo "Free space before: $space_before"
