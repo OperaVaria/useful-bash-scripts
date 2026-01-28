@@ -6,10 +6,18 @@ A set of miscellaneous Bash shell scripts, mainly centered around task automatio
 
 ## rclone-automount
 
-This script helps the Linux user to automate mounting cloud storages via the [rclone](https://rclone.org/) command line application.
-It is recommended to be used as a startup script. All configuration is handled by the .conf file.
+Helps the Linux user to automate mounting cloud storages via the [rclone](https://rclone.org/) command line application.
+It is recommended to be used as a startup script. All configuration is handled by the included .conf file.
 
-Tested on: CachyOS, GNU bash, 5.3.9(1)-release
+## smart-cleanup
+
+Performs an automated system cleanup on a Linux system, by executing the following steps: cleaning cache directory, emptying Trash, and removing older temp files, logs, and journals.
+It also clears the package manager's cache, and can check for orphaned packages, if needed.
+The severity of the cleanup is set by command line arguments. The script can only properly run with sudo privileges. Both an Arch and a Debian version is available.
+
+---
+
+Tested on: CachyOS, GNU bash, 5.3.9(1)-release, and MX Linux 23.5, GNU bash, 5.2.15(1)-release.
 
 ---
 
