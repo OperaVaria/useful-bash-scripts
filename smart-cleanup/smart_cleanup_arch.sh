@@ -310,9 +310,11 @@ vac_journals() {
 #######################################
 cln_paccache() {
   local -i day_limit="${1:-0}" # Limit date currently unused.
+  local -i size_before size_after
   echo "📦  Cleaning pacman cache"
   chk_deps paccache \
     || { echo "   ⚠️ Skipping cleaning pacman cache"; return 0; }
+  size_before=$(size_of /var/cache/pacman/pkg)  
   if [[ "${aggressive}" -eq 1 ]]; then
     echo "⚠️  Removing ALL cached packages"
     sudo paccache -rk0 2>/dev/null \
@@ -321,6 +323,8 @@ cln_paccache() {
     sudo paccache -rk3 2>/dev/null \
       || { echo "   ⚠️ paccache failed, continuing..."; }
   fi
+  size_after=$(size_of /var/cache/pacman/pkg)
+  track_freed "${size_before}" "${size_after}"
   return 0
 }
 
