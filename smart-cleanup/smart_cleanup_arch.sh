@@ -127,7 +127,7 @@ chk_deps() {
       command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
-    echo -e "${RED}   ❌ Missing required commands: ${missing[*]}${NC}}"
+    echo -e "${RED}   ❌ Missing required commands: ${missing[*]}${NC}"
     return 1
   fi
   return 0
@@ -141,7 +141,6 @@ chk_deps() {
 #   Target path.
 #######################################
 size_of() {
-  [[ -e "$1" ]] || { echo "0"; return; }
   local size
   size=$(du -sb "$1" 2>/dev/null | head -n1 | awk '{print $1}')
   if [[ -n "$size" && "$size" =~ ^[0-9]+$ ]]; then
