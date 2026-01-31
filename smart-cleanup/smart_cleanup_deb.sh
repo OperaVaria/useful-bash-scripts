@@ -56,12 +56,8 @@ readonly GREEN="\033[0;32m" YELLOW="\033[1;33m" RED="\033[0;31m" NC="\033[0m"
 set_mode() {
   for arg in "$@"; do
     case "${arg}" in
-      --aggressive|-a)
-        aggressive=1
-        ;;
-      --yes|-y)
-        no_confirm=1
-        ;;
+      --aggressive|-a) aggressive=1 ;;
+      --yes|-y) no_confirm=1 ;;
       --help|-h)
         cat << EOF
 Usage: smart_cleanup_deb.sh [OPTIONS]
@@ -145,7 +141,6 @@ chk_deps() {
 #   Target path.
 #######################################
 size_of() {
-  [[ -e "$1" ]] || { echo "0"; return; }
   local size
   size=$(du -sb "$1" 2>/dev/null | head -n1 | awk '{print $1}')
   if [[ -n "$size" && "$size" =~ ^[0-9]+$ ]]; then
