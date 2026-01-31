@@ -37,18 +37,13 @@
 set -euo pipefail
 
 # Declare script mode "booleans".
-declare -i aggressive=0
-declare -i no_confirm=0
+declare -i aggressive=0 no_confirm=0
 
 # Declare cleaning date limits (in days).
-readonly NORMAL_DAY_LIMIT=14
-readonly AGGRESSIVE_DAY_LIMIT=7
+readonly NORMAL_DAY_LIMIT=14 AGGRESSIVE_DAY_LIMIT=7
 
 # Declare color escape code constants.
-readonly GREEN="\033[0;32m"
-readonly YELLOW="\033[1;33m"
-readonly RED="\033[0;31m"
-readonly NC="\033[0m"
+readonly GREEN="\033[0;32m" YELLOW="\033[1;33m" RED="\033[0;31m" NC="\033[0m"
 
 #######################################
 # Function to set program mode variables
@@ -61,12 +56,8 @@ readonly NC="\033[0m"
 set_mode() {
   for arg in "$@"; do
     case "${arg}" in
-      --aggressive|-a)
-        aggressive=1
-        ;;
-      --yes|-y)
-        no_confirm=1
-        ;;
+      --aggressive|-a) aggressive=1 ;;
+      --yes|-y) no_confirm=1 ;;
       --help|-h)
         cat << EOF
 Usage: smart_cleanup_arch.sh [OPTIONS]
@@ -74,9 +65,9 @@ Usage: smart_cleanup_arch.sh [OPTIONS]
 Performs an automated system cleanup for Arch-based systems.
 
 OPTIONS:
-  --aggressive    Run with more severe removal settings
-  --yes, -y       Skip confirmation prompts
-  --help, -h      Show this help message
+  --aggressive, -a    Run with more severe removal settings
+  --yes, -y           Skip confirmation prompts
+  --help, -h          Show this help message
 
 EXAMPLES:
   # Normal cleanup with confirmation
@@ -105,9 +96,7 @@ EOF
 #######################################
 # Function to print horizontal line.
 #######################################
-hr() {
-  echo "------------------------------------------------------------"
-}
+hr() { echo "------------------------------------------------------------"; }
 
 #######################################
 # Confirmation prompt loop, skip if non
@@ -280,8 +269,7 @@ vac_journals() {
   local -i vac_limit="$1"
   local -i size_before size_after
   echo "📜 Vacuuming journal logs older than ${vac_limit} days"
-  chk_deps journalctl \
-  || { echo "   ⚠️ Skipping vacuuming journals"; return 0; }
+  chk_deps journalctl || { echo "   ⚠️ Skipping vacuuming journals"; return 0; }
   size_before=$(sudo journalctl --disk-usage 2>/dev/null \
     | grep -oE '[0-9]+B' | grep -oE '[0-9]+' || echo "")
   sudo journalctl --vacuum-time="${vac_limit}d" 2>/dev/null || {
@@ -302,7 +290,7 @@ vac_journals() {
 # Function to clean pacman cache.
 # Normal mode leaves most recent three
 # cached, aggressive removes all.
-# Checks for dependencies.
+# Checks for dependencies. Tracks space freed.
 # Arguments:
 #   File deletion date limit (in days).
 # Returns:
@@ -311,7 +299,7 @@ vac_journals() {
 cln_paccache() {
   local -i day_limit="${1:-0}" # Limit date currently unused.
   local -i size_before size_after
-  echo "📦  Cleaning pacman cache"
+  echo "📦 Cleaning pacman cache"
   chk_deps paccache \
     || { echo "   ⚠️ Skipping cleaning pacman cache"; return 0; }
   size_before=$(size_of /var/cache/pacman/pkg)  
@@ -404,11 +392,8 @@ main() {
     hr
   done
   # Final Report.
-  echo -e "${GREEN}✅  Cleanup complete${NC}"
-  if [[ "${total_freed}" -gt 0 ]]; then
-    echo "   Total freed: ${total_freed} MB"
-  fi
-  return 0
+  echo -e "${GREEN}✅ Cleanup complete${NC}"
+  [[ "${total_freed}" -gt 0 ]] && echo "   Total freed: ${total_freed} MB"
 }
 
 # Launch main function.
