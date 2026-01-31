@@ -69,7 +69,7 @@ set_mode() {
         ;;
       --help|-h)
         cat << EOF
-Usage: smart-clean.sh [OPTIONS]
+Usage: smart_cleanup_arch.sh [OPTIONS]
 
 Performs an automated system cleanup for Arch-based systems.
 
@@ -80,10 +80,10 @@ OPTIONS:
 
 EXAMPLES:
   # Normal cleanup with confirmation
-  sudo ./smart-clean.sh
+  sudo ./smart_cleanup_arch.sh
 
   # Aggressive cleanup without prompts
-  sudo ./smart-clean.sh --aggressive --yes
+  sudo ./smart_cleanup_arch.sh --aggressive --yes
 
 DESCRIPTION:
   Normal mode:     Removes files older than 14 days, keeps the latest three
