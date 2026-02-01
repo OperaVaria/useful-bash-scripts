@@ -99,7 +99,7 @@ EOF
 hr() { echo "------------------------------------------------------------"; }
 
 #######################################
-# Confirmation prompt loop, skip if non
+# Confirmation prompt, skip if non
 # interactive mode enabled.
 # Arguments:
 #   Prompt message string.
