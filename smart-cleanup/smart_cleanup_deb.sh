@@ -17,7 +17,7 @@
 #
 # Tested on: MX Linux 23.5, GNU bash, 5.2.15(1)-release
 #
-# Licence:
+# License:
 # Copyright © 2026, OperaVaria
 #
 # This program is free software: you can redistribute it and/or modify it under
