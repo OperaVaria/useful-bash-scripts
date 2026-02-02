@@ -16,6 +16,12 @@ The following steps can be executed: cleaning the cache directory, emptying the 
 The severity of the cleanup (normal or "aggressive" level) can be set by command line arguments.
 The script can only properly run with sudo privileges. Both an Arch and a Debian version is available.
 
+## git-project-initializer
+
+The script creates a boilerplate Git project directory by executing the following steps:
+create directory, create recommended subdirectories, create license, readme, changelog, and gitignore template files, initialize Git repository.
+It supports a wide range of licenses that can be selected via a command line argument (default: gnu-gpl-v3.0).
+
 ---
 
 **Tested on:** CachyOS, GNU bash, 5.3.9(1)-release, and MX Linux 23.5, GNU bash, 5.2.15(1)-release.
