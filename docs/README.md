@@ -33,6 +33,12 @@ Creates a boilerplate Git project repository by executing the following steps:
 
 It supports a wide range of licenses which can be selected via command line arguments (default: gnu-gpl-v3.0).
 
+The markdown templates are downloaded from the following repositories:
+
+- Licenses: [IQAndreas/markdown-licenses](https://github.com/IQAndreas/markdown-licenses) - Unlicense
+- Readme: [me-and-company/readme-template](https://github.com/me-and-company/readme-template) - MIT
+- Changelog: [olivierlacan/keep-a-changelog](https://github.com/olivierlacan/keep-a-changelog) - MIT
+
 ## unified-extractor
 
 Unifies the different archive extracting commands into a single one for convenient use.
