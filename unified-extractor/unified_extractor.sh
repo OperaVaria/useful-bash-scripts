@@ -8,8 +8,11 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# The script unifies the different archive extracting commands to a single one
-# for convenient use. Best employed aliased to "extract" or added to PATH.
+# Dependencies: 7z tar unrar unzip
+#
+# Description: The script unifies the different archive extracting commands
+# into a single one for convenient use. It is recommended to be added to
+# /usr/local/bin which can be done by the -a/--add flag.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
@@ -32,6 +35,10 @@
 # Exit on error, undefined variables, and pipe failures.
 set -euo pipefail
 
+# Self path constant.
+SCRIPT=$(realpath "$0")
+readonly SCRIPT
+
 #######################################
 # Function to handle and validate run options.
 # Arguments:
@@ -43,16 +50,20 @@ set_args() {
   local -a positional=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -v|--verbose)
-        verbose=1
-        shift
-        ;;
       -h|--help)
         show_help
         exit 0
         ;;
+      -a|--add)
+        add_to_bin
+        exit 0
+        ;;
+      -v|--verbose)
+        verbose=1
+        shift
+        ;;
       -*)
-        echo "❌ Unknown option '$1'"
+        echo "❌ Unknown option '$1'" >&2
         return 1
         ;;
       *)
@@ -62,12 +73,12 @@ set_args() {
     esac
   done
   if [[ ${#positional[@]} -eq 0 ]]; then
-    echo "❌ No archive specified"
+    echo "❌ No archive specified" >&2
     return 1
   else
     file="${positional[0]}"
     [[ ! -f "${file}" ]] \
-      && { echo "❌ '${file}' is not a file"; return 1; }
+      && { echo "❌ '${file}' is not a file" >&2; return 1; }
     file="$(realpath "${file}")"
   fi
   if [[ ${#positional[@]} -eq 1 ]]; then
@@ -85,8 +96,7 @@ set_args() {
 #######################################
 show_help() {
   cat << EOF
-Usage: standalone: ./unified_extractor.sh [OPTIONS] <archive> <destination>
-       command: extract [OPTIONS] <archive> <destination>
+Usage: extract [OPTIONS] <archive> <destination>
 
 Extracts different types of archive files with a single command.
 
@@ -94,13 +104,27 @@ ARGUMENTS:
   archive                  Archive filename
   destination              Directory to extract to
                            (default: new directory in the location of the
-                            archive file with the name of the archive)
+                           archive file with the name of the archive)
 
 OPTIONS:
+  -a, --add                Copy script to /usr/local/bin to make an "extract"
+                           command available at all times
   -h, --help               Show this help message
   -v, --verbose            Display (more) information prompts during the
                            extraction process
 EOF
+}
+
+#######################################
+# Copies script file to /usr/local/bin
+#######################################
+add_to_bin() {
+  conf_prompt "Are you sure you want to add 'extract' to usr/local/bin?" \
+    || return 1
+  chmod +x "${SCRIPT}"
+  sudo cp "${SCRIPT}" /usr/local/bin/extract
+  echo "✅ Process completed successfully"
+  return 0
 }
 
 #######################################
@@ -110,39 +134,9 @@ EOF
 #   Exit status.
 #######################################
 run_mime() {
-  local args mime
+  local mime args
   mime=$(file --mime-type -b "${file}")
   case "${mime}" in
-    application/zip)
-      chk_cmd unzip
-      [[ "${verbose}" -eq 1 ]] && args="-v" || args="-qq"
-      unzip "${args}" "${file}" -d "${destination}"
-      ;;
-    application/x-tar|application/x-gtar)
-      chk_cmd tar
-      [[ "${verbose}" -eq 1 ]] && args="-xvf" || args="-xf"
-      tar "${args}" "${file}" -C "${destination}"
-      ;;
-    application/gzip|application/x-gzip)
-      chk_cmd tar
-      [[ "${verbose}" -eq 1 ]] && args="-xvzf" || args="-xzf"
-      tar "${args}" "${file}" -C "${destination}"
-      ;;
-    application/x-bzip2)
-      chk_cmd tar
-      [[ "${verbose}" -eq 1 ]] && args="-xvjf" || args="-xjf"
-      tar "${args}" "${file}" -C "${destination}"
-      ;;
-    application/x-xz)
-      chk_cmd tar
-      [[ "${verbose}" -eq 1 ]] && args="-xvJf" || args="-xJf"
-      tar "${args}" "${file}" -C "${destination}"
-      ;;
-    application/zstd)
-      chk_cmd tar
-      [[ "${verbose}" -eq 1 ]] && args="-xvf" || args="-xf"
-      tar --zstd "${args}" "${file}" -C "${destination}"
-      ;;
     application/x-7z-compressed)
       chk_cmd 7z
       if [[ "${verbose}" -eq 1 ]]; then
@@ -150,6 +144,16 @@ run_mime() {
       else
         7z x "${file}" -o"${destination}" -bso0 -bsp0
       fi
+      ;;
+    application/x-bzip2)
+      chk_cmd tar
+      [[ "${verbose}" -eq 1 ]] && args="-xvjf" || args="-xjf"
+      tar "${args}" "${file}" -C "${destination}"
+      ;;
+    application/gzip|application/x-gzip)
+      chk_cmd tar
+      [[ "${verbose}" -eq 1 ]] && args="-xvzf" || args="-xzf"
+      tar "${args}" "${file}" -C "${destination}"
       ;;
     application/vnd.rar|application/x-rar)
       chk_cmd unrar
@@ -159,8 +163,28 @@ run_mime() {
         unrar x -inul "${file}" "${destination}/"
       fi
       ;;
+    application/x-tar|application/x-gtar)
+      chk_cmd tar
+      [[ "${verbose}" -eq 1 ]] && args="-xvf" || args="-xf"
+      tar "${args}" "${file}" -C "${destination}"
+      ;;
+    application/x-xz)
+      chk_cmd tar
+      [[ "${verbose}" -eq 1 ]] && args="-xvJf" || args="-xJf"
+      tar "${args}" "${file}" -C "${destination}"
+      ;;
+    application/zip)
+      chk_cmd unzip
+      [[ "${verbose}" -eq 1 ]] && args="-v" || args="-qq"
+      unzip "${args}" "${file}" -d "${destination}"
+      ;;
+    application/zstd)
+      chk_cmd tar
+      [[ "${verbose}" -eq 1 ]] && args="-xvf" || args="-xf"
+      tar --zstd "${args}" "${file}" -C "${destination}"
+      ;;
     *)
-      echo "❌ Unsupported archive type (${mime})"
+      echo "❌ Unsupported archive type (${mime})" >&2
       return 1
       ;;
   esac
@@ -177,15 +201,29 @@ run_mime() {
 #######################################
 chk_cmd() {
   command -v "$1" >/dev/null 2>&1 \
-    || { echo "❌ Required command '$1' not found"; return 1; }
+    || { echo "❌ Required command '$1' not found" >&2; return 1; }
   return 0
+}
+
+#######################################
+# Confirmation prompt, skip if
+# non-interactive mode enabled.
+# Arguments:
+#   Prompt message string.
+# Returns:
+#   Exit status (0=yes, 1=no).
+#######################################
+conf_prompt() {
+  read -t 30 -p "$1 (Y/N): " -n 1 -r \
+    || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
+  echo
+  [[ "${REPLY}" =~ ^[Yy]$ ]]
 }
 
 #######################################
 # Create directory path from archive
 # path by removing extension. Handles
-# *.tar.* files.
-# Prompts if already exists.
+# *.tar.* files. Prompts if already exists.
 # Returns:
 #   Exit status.
 #######################################
@@ -197,9 +235,7 @@ crt_dir() {
   fi
   if [[ -e "${destination}" ]]; then
     echo "⚠️  Directory '$(basename "${destination}")' already exists"
-    read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r
-    echo
-    [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1
+    conf_prompt "Continue anyway?" || return 1
   fi
   mkdir -p "${destination}" || return 1
   return 0
@@ -213,8 +249,8 @@ crt_dir() {
 #   Exit status.
 #######################################
 extract() {
-  local destination file
-  local -i verbose=0
+  declare -g destination file
+  declare -gi verbose=0
   set_args "$@"
   [[ $verbose -eq 1 ]] \
     && echo -e "Extracting: '${file}'\ninto '${destination}/'"
