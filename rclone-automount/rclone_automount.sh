@@ -8,9 +8,11 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# This script helps the Linux user to automate mounting cloud storages via
-# the rclone command line application. It is recommended to be used as a
-# startup script. All configuration is handled by the included .conf file.
+# Dependencies: rclone
+#
+# Description: This script helps the Linux user to automate mounting cloud
+# storages via the rclone command line application. All configuration is
+# handled by the included .conf file.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
@@ -33,10 +35,63 @@
 # Exit on error, undefined variables, and pipe failures.
 set -euo pipefail
 
-# Default config path (can be overridden by env var).
-CONFIG_FILE="${RCLONE_AUTOMOUNT_CONFIG:-$HOME/.config/rclone/automount.conf}"
+# Default config path.
+CONFIG_FILE="${HOME}/.config/rclone/automount.conf"
 
-# FUNCTIONS:
+#######################################
+# Function to handle and validate run options.
+# Arguments:
+#   Script positional arguments.
+# Returns:
+#   Exit status.
+#######################################
+set_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help|-h)
+        show_help
+        exit 0
+        ;;
+      -c|--config)
+        if [[ $# -ge 2 ]]; then
+          CONFIG_FILE="$2"
+        else
+          err "-c/--config requires an argument"
+          return 1
+        fi
+        shift 2
+        ;;
+      -*)
+        err "Unknown option '$1'"
+        return 1
+        ;;
+      *)
+        err "Unknown argument '$1'"
+        return 1
+        ;;
+    esac
+  done
+  if [[ $# -gt 0 ]]; then
+    err "Too many positional arguments"
+    return 1
+  fi
+  return 0
+}
+
+#######################################
+# Displays help message.
+#######################################
+show_help() {
+  cat << EOF
+Usage: ./rclone_automount.sh [OPTIONS]
+
+Automates mounting cloud storages via the rclone application.
+
+OPTIONS:
+  -c, --config <config_file>    Set config file location
+  -h, --help                    Show this help message
+EOF
+}
 
 #######################################
 # Error message handling function.
@@ -52,7 +107,7 @@ err() {
 # Returns:
 #   Exit status int.
 #######################################
-check_rclone() {
+chk_rclone() {
   if ! command -v rclone &>/dev/null; then
     err "rclone is not installed or not in PATH"
     return 1
@@ -68,7 +123,6 @@ check_rclone() {
 load_cfg() {
   if [[ ! -f "${CONFIG_FILE}" ]]; then
     err "Config file not found: ${CONFIG_FILE}"
-    err "Create it or set RCLONE_AUTOMOUNT_CONFIG environment variable"
     return 1
   else
     # shellcheck source=/dev/null
@@ -106,6 +160,25 @@ val_var() {
 }
 
 #######################################
+# Checks if items in the REMOTES array
+# actually exist as rclone remotes. 
+# Returns:
+#   Exit status int.
+#######################################
+val_remotes() {
+  local configured_remotes
+  configured_remotes=$(rclone listremotes)  
+  for remote in "${REMOTES[@]}"; do
+    if ! grep -q "^${remote%%:*}:$" <<< "$configured_remotes"; then
+      err "Remote '${remote%%:*}' not configured in rclone"
+      return 1
+    fi
+  done
+  return 0
+}
+
+
+#######################################
 # Checks for configuration array length
 # mismatches which indicate incomplete
 # config data.
@@ -138,14 +211,12 @@ chk_dir() {
     err "Failed to create log directory: ${LOG_DIR}"
     return 1
   fi
-
   for mount in "${MOUNTS[@]}"; do
     if ! mkdir -p "${CLOUD_DIR}/${mount}"; then
       err "Failed to create mount directory: ${CLOUD_DIR}/${mount}"
       return 1
     fi
   done
-
   return 0
 }
 
@@ -215,18 +286,20 @@ command_loop() {
 #######################################
 # Launches main function.
 # Arguments:
-#   Script positional arguments (unused).
+#   Script positional arguments.
 # Returns:
 #   Exit status int.
 #######################################
 main() {
-  echo "🚀 Starting rclone automount script..."
-
   # Loading and validation.
-  check_rclone || exit 1
+  set_args "$@" || exit 1  
+  chk_rclone || exit 1
   load_cfg || exit 1
   val_var || exit 1
+  val_remotes || exit 1
   val_arr || exit 1
+
+  echo "🚀 Starting rclone automount script..."
 
   # Create directories.
   chk_dir || exit 1
