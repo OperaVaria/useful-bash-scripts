@@ -179,22 +179,30 @@ cln_logs() {
 
 #######################################
 # Function to vacuum journals.
-# Checks for dependencies, tracks space freed.
+# Checks for dependencies, tracks space
+# freed if helper function dependency
+# is available (bc).
 # Returns:
 #   Exit status.
 #######################################
-vac_journals() {
-  local -i size_before size_after
+vac_journals() {  
   echo "📜 Vacuuming journal logs older than ${day_limit} days"
-  chk_deps bc journalctl \
-    || { echo "   ⚠️ Skipping vacuuming journals"; return 0; }
-  size_before=$(journalctl_bits)
-  sudo journalctl --vacuum-time="${day_limit}d" 2>/dev/null || {
-    echo "   ⚠️ Failed to vacuum journals" >&2
-    return 1
-  }
-  size_after=$(journalctl_bits)
-  track_freed "${size_before}" "${size_after}"
+  if ! chk_deps journalctl; then
+    echo "   ⚠️ Skipping vacuuming journals"
+  elif ! chk_deps bc; then
+    echo "   ⚠️ Skipping calculating journals' size"
+    sudo journalctl --vacuum-time="${day_limit}d" 2>/dev/null \
+      || { echo "   ⚠️ Failed to vacuum journals" >&2; return 1; }
+  else
+    local -i size_before size_after
+    size_before=$(journalctl_bits)|| size_before=0
+    sudo journalctl --vacuum-time="${day_limit}d" 2>/dev/null || {
+      echo "   ⚠️ Failed to vacuum journals" >&2
+      return 1
+    }
+    size_after=$(journalctl_bits) || size_after=0
+    track_freed "${size_before}" "${size_after}"
+  fi
   return 0
 }
 
