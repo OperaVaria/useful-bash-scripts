@@ -87,7 +87,7 @@ set_args() {
     destination="${positional[1]}"
     mkdir -p "${destination}" || return 1
     destination="$(realpath "${destination}")"
-  fi  
+  fi
   return 0
 }
 
