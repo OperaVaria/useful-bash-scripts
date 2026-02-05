@@ -128,9 +128,9 @@ cln_cache() {
     echo "   ⚠️ ~/.cache does not exist, skipping" >&2
     return 0
   fi
-  find ~/.cache -mindepth 1 -type f -mtime +"${day_limit}" \
+  find "${HOME}/.cache" -mindepth 1 -type f -mtime +"${day_limit}" \
     -delete 2>/dev/null || true
-  find ~/.cache -type d -empty -delete 2>/dev/null || true
+  find "${HOME}/.cache" -type d -empty -delete 2>/dev/null || true
   return 0
 }
 
@@ -146,7 +146,7 @@ cln_trash() {
     echo "   ⚠️ Trash directory not found, skipping" >&2
     return 0
   fi
-  rm -rf "${trash}"/files/* "${trash}"/info/* 2>/dev/null || true
+  rm -rf "${trash}/files/"* "${trash}/info/"* 2>/dev/null || true
   return 0
 }
 
@@ -166,7 +166,8 @@ cln_tmp() {
 }
 
 #######################################
-# Function to clean logs.
+# Function to clean log files older than
+# global limit.
 # Returns:
 #   Exit status.
 #######################################
@@ -195,12 +196,12 @@ vac_journals() {
       || { echo "   ⚠️ Failed to vacuum journals" >&2; return 1; }
   else
     local -i size_before size_after
-    size_before=$(journalctl_bits)|| size_before=0
+    size_before=$(journalctl_bytes) || size_before=0
   sudo journalctl --vacuum-time="${day_limit}d" 2>/dev/null || {
     echo "   ⚠️ Failed to vacuum journals" >&2
     return 1
   }
-    size_after=$(journalctl_bits) || size_after=0
+    size_after=$(journalctl_bytes) || size_after=0
   track_freed "${size_before}" "${size_after}"
   fi
   return 0
@@ -212,7 +213,7 @@ vac_journals() {
 # Returns:
 #   Exit status.
 #######################################
-journalctl_bits() {
+journalctl_bytes() {
     local journal_size number unit byte_result
     journal_size=$(sudo journalctl --disk-usage 2>/dev/null \
         | grep -oE '[0-9]+\.?[0-9]*[BKMGT]')
@@ -304,7 +305,8 @@ cln_orph() {
 #######################################
 # Function to iterate over cleaning functions.
 # Displays prompts in normal mode. Tracks freed
-# space when possible.
+# space when possible (exception: vac_journals,
+# cln_orph)
 # Returns:
 #   Exit status.
 #######################################
@@ -390,17 +392,20 @@ chk_deps() {
 
 #######################################
 # Function to check the size of the target.
-# Prints 0 if value is empty or non-number.
+# Echos value in bytes.
 # Arguments:
 #   Target path.
+# Returns:
+#   Exit status.
 #######################################
 size_of() {
   local size
   size=$(du -sb "$1" 2>/dev/null | head -n1 | awk '{print $1}')
   if [[ -n "${size}" && "${size}" =~ ^[0-9]+$ ]]; then
     echo "${size}"
+    return 0
   else
-    echo "0"
+    return 1
   fi
 }
 
@@ -435,7 +440,7 @@ main() {
   # Pre-run steps.
   declare -gi aggressive=0 no_confirm=0 day_limit=0  total_freed=0
   set_mode "$@" || exit 1
-  sudo -v
+  sudo -v || { echo "❌ Sudo authentication failed"; exit 1; }
   echo -e "🧹 Smart Cleanup Script (Debian)"
   set_aggress || exit 1
   hr
