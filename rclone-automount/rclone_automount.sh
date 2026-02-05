@@ -161,13 +161,13 @@ val_var() {
 
 #######################################
 # Checks if items in the REMOTES array
-# actually exist as rclone remotes. 
+# actually exist as rclone remotes.
 # Returns:
 #   Exit status int.
 #######################################
 val_remotes() {
   local configured_remotes
-  configured_remotes=$(rclone listremotes)  
+  configured_remotes=$(rclone listremotes)
   for remote in "${REMOTES[@]}"; do
     if ! grep -q "^${remote%%:*}:$" <<< "$configured_remotes"; then
       err "Remote '${remote%%:*}' not configured in rclone"
@@ -292,7 +292,7 @@ command_loop() {
 #######################################
 main() {
   # Loading and validation.
-  set_args "$@" || exit 1  
+  set_args "$@" || exit 1
   chk_rclone || exit 1
   load_cfg || exit 1
   val_var || exit 1

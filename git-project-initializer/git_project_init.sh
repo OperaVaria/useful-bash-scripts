@@ -125,7 +125,7 @@ EOF
 in_array() {
   local item
   local needle="$1"
-  shift  
+  shift
   for item in "$@"; do
     [[ "${item}" == "${needle}" ]] && return 0
   done
@@ -181,12 +181,12 @@ crt_dir() {
   if [[ -e "${project_dir}" && ! -d "${project_dir}" ]]; then
     echo "❌ '${project_dir}' exists but is not a directory" >&2
     return 1
-  elif [[ -d "${project_dir}" ]]; then    
+  elif [[ -d "${project_dir}" ]]; then
     echo "📁 '${project_dir}' already exists."
    read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r \
     || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
     echo
-    [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1    
+    [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1
   else
     mkdir -p "${project_dir}"
   fi
@@ -233,7 +233,7 @@ git_steps() {
   git add .
   git diff --cached --quiet \
     || git -c commit.gpgsign=false commit -m "Initial project structure" \
-    || { 
+    || {
       echo "⚠️ Git commit failed (user.name / user.email not set)" >&2
       echo "💡 Can be fixed by running:" >&2
       echo "git config --global user.name 'Your Name'" >&2

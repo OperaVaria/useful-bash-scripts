@@ -11,7 +11,7 @@
 # Dependencies: apt-get bc deborphan journalctl
 #
 # Description: The script performs an automated system cleanup on Debian-based
-# Linux OSs. The severity of the cleanup (normal or "aggressive" level) can 
+# Linux OSs. The severity of the cleanup (normal or "aggressive" level) can
 # be configured by command line arguments. The script can only properly run
 # with sudo privileges.
 #
@@ -50,7 +50,7 @@ set_mode() {
   for arg in "$@"; do
     case "${arg}" in
       -h|--help)
-        show_help 
+        show_help
         exit 0
         ;;
       -a|--aggressive)
@@ -199,7 +199,7 @@ vac_journals() {
 }
 
 #######################################
-# Helper function to convert journalctl 
+# Helper function to convert journalctl
 # disk usage output to byte value.
 # Returns:
 #   Exit status.
@@ -207,8 +207,8 @@ vac_journals() {
 journalctl_bits() {
     local journal_size number unit byte_result
     journal_size=$(sudo journalctl --disk-usage 2>/dev/null \
-        | grep -oE '[0-9]+\.?[0-9]*[BKMGT]')    
-    [[ -z "${journal_size}" ]] && return 1    
+        | grep -oE '[0-9]+\.?[0-9]*[BKMGT]')
+    [[ -z "${journal_size}" ]] && return 1
     number="${journal_size::-1}"
     unit="${journal_size: -1}"
     LC_ALL="C"
@@ -216,7 +216,7 @@ journalctl_bits() {
         B)
           byte_result="${number}"
           ;;
-        K) 
+        K)
           byte_result=$(printf "%.0f" \
           "$(echo "${number} * 1024" | bc)")
           ;;
@@ -235,7 +235,7 @@ journalctl_bits() {
         *)
           echo "   ⚠️ Unknown file size unit: ${unit}" >&2
           return 1
-          ;;  
+          ;;
     esac
     echo "${byte_result}"
     return 0
