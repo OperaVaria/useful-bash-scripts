@@ -274,9 +274,9 @@ command_loop() {
   # Print summary.
   echo ""
   echo "📊 Summary:"
-  echo "   ✅ Successfully mounted: $success_count."
-  echo "   ⚠️ Skipped (already mounted): $skip_count."
-  echo "   ❌ Failed: $fail_count."
+  echo "   ✅ Successfully mounted: ${success_count}."
+  echo "   ⚠️ Skipped (already mounted): ${skip_count}."
+  echo "   ❌ Failed: ${fail_count}."
   echo ""
 
   # Return error if any mounts failed.
