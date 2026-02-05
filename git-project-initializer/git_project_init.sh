@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Git project initializer
+# Git project initializer script for Bash
 # Created by OperaVaria
 # lcs_it@proton.me
 #
@@ -8,11 +8,11 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# The script creates a boilerplate Git project directory by executing the
-# following steps: create directory, create recommended subdirectories, create
-# license, readme, changelog, and gitignore template files, initialize Git
-# repository. It supports a wide range of licenses that can be selected via a
-# command line argument (default: gnu-gpl-v3.0).
+# Dependencies: curl git realpath
+#
+# Description: The script creates a boilerplate Git project by creating the
+# recommended directories, adding file templates, and initializing the Git
+# repository.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
@@ -44,7 +44,7 @@ declare -a VALID_LICENSES=(artistic-v2.0 bsd-2 bsd-3 epl-v1.0 gnu-agpl-v3.0
                            gnu-lgpl-v2.1 gnu-lgpl-v3.0 mit mpl-v2.0 unlicense)
 
 #######################################
-# Function to handle run options.
+# Function to handle and validate run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -55,8 +55,47 @@ set_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --help|-h)
-        cat << EOF
-Usage: git_project_init.sh [OPTIONS] [project_dir]
+        show_help
+        exit 0
+        ;;
+      -l|--license)
+        if [[ $# -ge 2 ]]; then
+          license="${2,,}"
+          if ! in_array "${license}" "${VALID_LICENSES[@]}"; then
+              echo "❌ Unsupported license '${license}'" >&2
+              return 1
+          fi
+        else
+          echo "❌ -l/--license requires an argument" >&2
+          return 1
+        fi
+        shift 2
+        ;;
+      -*)
+        echo "❌ Unknown option '$1'" >&2
+        return 1
+        ;;
+      *)
+        positional+=("$1")
+        shift
+        ;;
+    esac
+  done
+  if [[ ${#positional[@]} -gt 1 ]]; then
+    echo "❌ Too many positional arguments" >&2
+    return 1
+  elif [[ ${#positional[@]} -eq 1 ]]; then
+    project_dir="${positional[0]}"
+  fi
+  return 0
+}
+
+#######################################
+# Displays help message.
+#######################################
+show_help() {
+  cat << EOF
+Usage: ./git_project_init.sh [OPTIONS] <project_dir>
 
 Creates a boilerplate Git project directory.
 
@@ -65,49 +104,14 @@ ARGUMENTS:
                            (default: current working directory)
 
 OPTIONS:
-  -l, --license LICENSE    Set project license
+  -h, --help               Show this help message
+
+  -l, --license LICENSE    Set project license (default: gnu-gpl-v3.0)
                            Supported: artistic-v2.0, bsd-2, bsd-3, epl-v1.0,
                            gnu-agpl-v3.0, gnu-fdl-v1.3, gnu-gpl-v1.0,
                            gnu-gpl-v2.0, gnu-gpl-v3.0, gnu-lgpl-v2.1,
                            gnu-lgpl-v3.0, mit, mpl-v2.0, unlicense
-                           (default: gnu-gpl-v3.0)
-
-  -h, --help               Show this help message
 EOF
-        exit 0
-        ;;
-      -l|--license)
-        if [[ $# -ge 2 ]]; then
-          license="$2"
-          if ! in_array "${license}" "${VALID_LICENSES[@]}"; then
-              echo "❌ Unsupported license '${license}'"
-              return 1
-          fi
-        else
-          echo "❌ -l/--license requires an argument"
-          return 1
-        fi
-        shift 2
-        continue
-        ;;
-      -*)
-        echo "❌ Unknown option '$1'"
-        return 1
-        ;;
-      *)
-        positional+=("$1")
-        shift
-        continue
-        ;;
-    esac
-  done
-  if [[ ${#positional[@]} -gt 1 ]]; then
-    echo "❌ Too many positional arguments"
-    return 1
-  elif [[ ${#positional[@]} -eq 1 ]]; then
-    project_dir="${positional[0]}"
-  fi
-  return 0
 }
 
 #######################################
@@ -138,10 +142,10 @@ chk_dir() {
   local resolved
   resolved="$(realpath -m "${project_dir}")"
   if [[ "${resolved}" == "/" ]]; then
-    echo "❌ Refusing to run in root directory"
+    echo "❌ Refusing to run in root directory" >&2
     return 1
   elif [[ "${resolved}" == "${HOME}" ]]; then
-    echo "❌ Refusing to run in home directory"
+    echo "❌ Refusing to run in home directory" >&2
     return 1
   fi
   return 0
@@ -161,7 +165,7 @@ chk_deps() {
       command -v "${cmd}" >/dev/null 2>&1 || missing+=("${cmd}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
-    echo "❌ Missing required commands: ${missing[*]}"
+    echo "❌ Missing required commands: ${missing[*]}" >&2
     return 1
   fi
   return 0
@@ -175,16 +179,18 @@ chk_deps() {
 #######################################
 crt_dir() {
   if [[ -e "${project_dir}" && ! -d "${project_dir}" ]]; then
-    echo "❌ '${project_dir}' exists but is not a directory"
+    echo "❌ '${project_dir}' exists but is not a directory" >&2
     return 1
-  elif [[ -d "${project_dir}" ]]; then
+  elif [[ -d "${project_dir}" ]]; then    
     echo "📁 '${project_dir}' already exists."
-    conf_prompt "Create project in this directory?" || return 1
-    return 0
+   read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r \
+    || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
+    echo
+    [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1    
   else
     mkdir -p "${project_dir}"
-    return 0
   fi
+  return 0
 }
 
 #######################################
@@ -227,21 +233,12 @@ git_steps() {
   git add .
   git diff --cached --quiet \
     || git -c commit.gpgsign=false commit -m "Initial project structure" \
-    || { echo "⚠️ Git commit failed (user.name / user.email not set)" >&2; }
-}
-
-#######################################
-# Confirmation prompt.
-# Arguments:
-#   Prompt message string.
-# Returns:
-#   Exit status (0=yes, 1=no).
-#######################################
-conf_prompt() {
-  local response
-  [[ -t 0 ]] || return 1
-  read -rp "$1 (Y/N): " response
-  [[ "${response}" =~ ^[Yy]$ ]]
+    || { 
+      echo "⚠️ Git commit failed (user.name / user.email not set)" >&2
+      echo "💡 Can be fixed by running:" >&2
+      echo "git config --global user.name 'Your Name'" >&2
+      echo "git config --global user.email 'you@example.com'" >&2
+    }
 }
 
 #######################################
@@ -266,6 +263,8 @@ main() {
 
   # Initialize repository.
   git_steps
+
+  echo "✅ Project initialized successfully in '${project_dir}'"
 
   return 0
 }
