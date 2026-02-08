@@ -44,7 +44,7 @@ Currently supported licenses **(default: gnu-gpl-v3.0)**:
 gnu-fdl-v1.3, gnu-gpl-v1.0, gnu-gpl-v2.0, gnu-gpl-v3.0, gnu-lgpl-v2.1,
 gnu-lgpl-v3.0, mit, mpl-v2.0, unlicense
 
-These can be selected via the -l or --license command line option, such as:
+These can be selected via the -l|--license command line option, such as:
 
 ```bash
 ./git_project-init.sh -l mit
@@ -54,11 +54,11 @@ These can be selected via the -l or --license command line option, such as:
 
 Helps the Linux user to automate mounting cloud storages via the [rclone](https://rclone.org/) command line application.
 All configuration is handled by the included [.conf file](/rclone-automount/automount.conf).
-It is recommended to be run as an autostart script (see bellow).
+It is recommended to be run as an autostart/start-on-login script (see bellow).
 
 ### script-autostart
 
-Sets a shell script to autostart on user login.
+Helps the user to quickly set a script to automatically run at user login.
 
 ### smart-cleanup
 
@@ -73,12 +73,12 @@ The following steps can be executed:
 - Checking for orphaned packages
 
 The severity of the cleanup ("normal" or "aggressive" level) can be set by command line arguments (none or -a|--aggressive).
-Both Arch and Debian versions are available. The script requires sudo privileges to run properly.
+Both Arch and Debian versions are available. The script requires sudo privileges to execute all steps properly.
 
 ### unified-extractor
 
 Unifies the different archive extracting commands into a single one for convenient use.
-Recommended to be copied to /usr/local/bin to make an "extract" command available at all times.
+Recommended to be copied to /usr/local/bin to make the "extract" command available at all times.
 This can be done by executing:
 
 ```bash
