@@ -183,8 +183,8 @@ crt_dir() {
     return 1
   elif [[ -d "${project_dir}" ]]; then
     echo "📁 '${project_dir}' already exists."
-   read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r \
-    || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
+    read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r \
+      || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
     echo
     [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1
   else
