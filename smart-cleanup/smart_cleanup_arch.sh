@@ -101,16 +101,12 @@ set_aggress() {
   if [[ "${aggressive}" -eq 1 ]]; then
     echo -e "   ⚠️ Running in AGGRESSIVE mode"
     day_limit="${AGGRESSIVE_DAY_LIMIT}"
-    if [[ "${no_confirm}" -eq 0 ]]; then
-      conf_prompt "This will remove more data than normal mode. Continue?" \
-        || return 1
-    fi
+    conf_prompt "This will remove more data than normal mode. Continue?" \
+      || return 1
   else
     echo "   Running in normal mode"
     day_limit="${NORMAL_DAY_LIMIT}"
-    if [[ "${no_confirm}" -eq 0 ]]; then
-      conf_prompt "Proceed with normal cleanup?" || return 1
-    fi
+    conf_prompt "Proceed with normal cleanup?" || return 1
   fi
   return 0
 }
@@ -330,7 +326,7 @@ func_loop() {
                   "/var/cache/pacman/pkg"
                   "")
   for ((i=0; i<${#funcs[@]}; i++)); do
-    [[ "${no_confirm}" -eq 1 ]] || conf_prompt "${prompts[$i]}" || continue
+    conf_prompt "${prompts[$i]}" || continue
     if [[ "${funcs[$i]}" == "vac_journals" ]] \
       || [[ "${funcs[$i]}" == "cln_orph" ]]; then
       ${funcs[$i]}
