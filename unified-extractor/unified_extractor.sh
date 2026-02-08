@@ -75,11 +75,14 @@ set_args() {
   if [[ ${#positional[@]} -eq 0 ]]; then
     echo "❌ No archive specified" >&2
     return 1
+  elif [[ ${#positional[@]} -gt 2 ]]; then
+    echo "❌ Too many positional arguments" >&2
+    return 1
+  elif [[ ! -f ${positional[0]} ]]; then
+    echo "❌ '${positional[0]}' is not a valid file" >&2
+    return 1
   else
-    file="${positional[0]}"
-    [[ ! -f "${file}" ]] \
-      && { echo "❌ '${file}' is not a file" >&2; return 1; }
-    file="$(realpath "${file}")"
+    file="$(realpath "${positional[0]}")"
   fi
   if [[ ${#positional[@]} -eq 1 ]]; then
     crt_dir
