@@ -8,7 +8,8 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# Helps the user to quickly set a script to automatically run at user login.
+# This small command line utility helps the user to easily set up a script to
+# automatically run at login.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
