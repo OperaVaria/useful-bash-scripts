@@ -39,7 +39,7 @@ set -euo pipefail
 CONFIG_FILE="${HOME}/.config/rclone/automount.conf"
 
 #######################################
-# Function to handle and validate run options.
+# Handles and validates run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -229,7 +229,7 @@ chk_dir() {
 command_loop() {
   # Declare local variables.
   local mount_path log_path
-  local -i i=0 success_count=0 skip_count=0 fail_count=0
+  local -i i success_count=0 skip_count=0 fail_count=0
 
   for ((i=0; i<${#REMOTES[@]}; i++)); do
     # Create mount and log paths.
@@ -239,12 +239,12 @@ command_loop() {
     # Validate mount dirs.
     if mountpoint -q "${mount_path}" 2>/dev/null ; then
       echo "⚠️  ${MOUNTS[$i]} already mounted, skipping"
-      skip_count=$((skip_count + 1))
+      ((fail_count++))
       continue
-    elif [[ -d "$mount_path" \
-      && -n "$(ls -A "$mount_path" 2>/dev/null)" ]]; then
-      err "Mount dir not empty: $mount_path"
-      fail_count=$((fail_count + 1))
+    elif [[ -d "${mount_path}" \
+      && -n "$(ls -A "${mount_path}" 2>/dev/null)" ]]; then
+      err "Mount dir not empty: ${mount_path}"
+      ((fail_count++))
       continue
     fi
 
@@ -260,8 +260,8 @@ command_loop() {
     # Build and execute command.
     if rclone mount \
       "${REMOTES[$i]}" \
-      "$mount_path" \
-      --log-file "$log_path" \
+      "${mount_path}" \
+      --log-file "${log_path}" \
       "${args[@]}"; then
       echo "✅ ${MOUNTS[$i]} mounted successfully."
       ((success_count++))

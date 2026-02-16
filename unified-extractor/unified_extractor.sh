@@ -10,7 +10,7 @@
 #
 # Dependencies: 7z tar unrar unzip
 #
-# Description: The script unifies the different archive extracting commands
+# Description: This script unifies the different archive extracting commands
 # into a single one for convenient use. It is recommended to be added to
 # /usr/local/bin which can be done by the -a/--add flag.
 #
@@ -40,7 +40,7 @@ SCRIPT=$(realpath "$0")
 readonly SCRIPT
 
 #######################################
-# Function to handle and validate run options.
+# Handles and validates run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -78,7 +78,7 @@ set_args() {
   elif [[ ${#positional[@]} -gt 2 ]]; then
     echo "❌ Too many positional arguments" >&2
     return 1
-  elif [[ ! -f ${positional[0]} ]]; then
+  elif [[ ! -f "${positional[0]}" ]]; then
     echo "❌ '${positional[0]}' is not a valid file" >&2
     return 1
   else
@@ -119,7 +119,7 @@ EOF
 }
 
 #######################################
-# Copies script file to /usr/local/bin
+# Copies script file to /usr/local/bin.
 #######################################
 add_to_bin() {
   conf_prompt "Are you sure you want to add 'extract' to usr/local/bin?" \
@@ -132,7 +132,9 @@ add_to_bin() {
 
 #######################################
 # Detects file mimetype and runs proper
-# extracting binary.
+# extracting binary. Checks if binary
+# is present on the system, and hadles
+# verbose options. 
 # Returns:
 #   Exit status.
 #######################################
@@ -195,7 +197,7 @@ run_mime() {
 }
 
 #######################################
-# Check if command is available on the
+# Checks if command is available on the
 # system.
 # Arguments:
 #   Command to be checked.
@@ -224,7 +226,7 @@ conf_prompt() {
 }
 
 #######################################
-# Create directory path from archive
+# Creates directory path from archive
 # path by removing extension. Handles
 # *.tar.* files. Prompts if already exists.
 # Returns:

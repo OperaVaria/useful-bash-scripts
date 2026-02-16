@@ -8,8 +8,10 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# This small command line utility helps the user to easily set up a script to
-# automatically run at login.
+# Dependencies: realpath
+#
+# Description: This small command line utility helps the user to easily set up
+# a script to run automatically at login.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
 #
@@ -33,7 +35,7 @@
 set -euo pipefail
 
 #######################################
-# Function to handle and validate run options.
+# Handles and validates run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -122,7 +124,7 @@ val_script() {
 }
 
 #######################################
-# Set script file executable if it is not.
+# Makes script file executable.
 # Prompt only in interactive mode.
 # Returns:
 #   Exit status.
@@ -137,10 +139,9 @@ set_exec() {
 
 #######################################
 # Creates a .desktop file in the user
-# autostart directory. Prompts if file
-# already exists, tries to create autostart
-# directory if absent.
-# Error handling included.
+# autostart directory. Tries to create autostart
+# directory, if absent. Prompts if file
+# already exists. Error handling included.
 # Returns:
 #   Exit status.
 #######################################
@@ -148,13 +149,12 @@ crt_autostart() {
   local autostart_dir script_name desktop_file
   autostart_dir="${HOME}/.config/autostart"
   script_name=$(basename "${script}")
-  desktop_file="${autostart_dir}/${script_name}.desktop"  
-  if [[ -e "${desktop_file}" ]]; then
-    conf_prompt "⚠️ Autostart entry already exists. Overwrite?" || return 1
-  fi
+  desktop_file="${autostart_dir}/${script_name}.desktop"
   if ! mkdir -p "${autostart_dir}"; then
     echo "❌ Failed to create autostart directory" >&2
     return 1
+  elif [[ -e "${desktop_file}" ]]; then
+    conf_prompt "⚠️ Autostart entry already exists. Overwrite?" || return 1
   fi
   if ! cat > "${desktop_file}" <<EOF
 [Desktop Entry]

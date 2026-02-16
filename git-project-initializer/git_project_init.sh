@@ -10,7 +10,7 @@
 #
 # Dependencies: curl git realpath
 #
-# Description: The script creates a boilerplate Git project by creating the
+# Description: This script sets up a boilerplate Git project by creating the
 # recommended directories, adding file templates, and initializing the Git
 # repository.
 #
@@ -44,7 +44,7 @@ declare -a VALID_LICENSES=(artistic-v2.0 bsd-2 bsd-3 epl-v1.0 gnu-agpl-v3.0
                            gnu-lgpl-v2.1 gnu-lgpl-v3.0 mit mpl-v2.0 unlicense)
 
 #######################################
-# Function to handle and validate run options.
+# Handles and validates run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -115,7 +115,7 @@ EOF
 }
 
 #######################################
-# Check if a value exists in an array.
+# Checks if a value exists in an array.
 # Arguments:
 #   $1 - Value to search for.
 #   $@ - Array elements.
@@ -133,7 +133,7 @@ in_array() {
 }
 
 #######################################
-# Check project_dir, refuse root or home
+# Checks project_dir, refuses root or home
 # directory.
 # Returns:
 #   Exit status.
@@ -152,7 +152,7 @@ chk_dir() {
 }
 
 #######################################
-# Check if commands are available on the
+# Checks if commands are available on the
 # system.
 # Arguments:
 #   Commands to be checked.
@@ -172,7 +172,7 @@ chk_deps() {
 }
 
 #######################################
-# Create project directory with error
+# Creates project directory, with error
 # handling if it already exists.
 # Returns:
 #   Exit status.
@@ -194,7 +194,7 @@ crt_dir() {
 }
 
 #######################################
-# Download template files with error handling.
+# Downloads template files with error handling.
 #######################################
 dwl_templates() {
   curl -sSLo COPYING.md \
@@ -209,7 +209,7 @@ dwl_templates() {
 }
 
 #######################################
-# Create the .gitignore file.
+# Creates the .gitignore file.
 #######################################
 crt_gitignore() {
   cat > .gitignore << EOF
@@ -224,8 +224,8 @@ EOF
 }
 
 #######################################
-# Perform initial git commands with error
-# handling. Only commit if repository is not
+# Performs initial git commands with error
+# handling. Only commits if repository is not
 # empty.
 #######################################
 git_steps() {

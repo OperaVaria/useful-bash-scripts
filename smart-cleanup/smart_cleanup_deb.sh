@@ -40,7 +40,7 @@ set -euo pipefail
 readonly NORMAL_DAY_LIMIT=14 AGGRESSIVE_DAY_LIMIT=7
 
 #######################################
-# Function to handle and validate run options.
+# Handles and validates run options.
 # Arguments:
 #   Script positional arguments.
 # Returns:
@@ -91,9 +91,9 @@ EOF
 }
 
 #######################################
-# Display initial warning and set
+# Displays initial warning and sets
 # variables in accordance with
-# aggressiveness.
+# aggressiveness option.
 # Returns:
 #   Exit status.
 #######################################
@@ -112,7 +112,7 @@ set_aggress() {
 }
 
 #######################################
-# Function to clean ~/.cache directory.
+# Cleans the ~/.cache directory.
 # Deletes empty directories and files
 # older than global limit.
 # Returns:
@@ -131,7 +131,7 @@ cln_cache() {
 }
 
 #######################################
-# Function to empty the Trash directory.
+# Empties the Trash directory.
 # Returns:
 #   Exit status.
 #######################################
@@ -147,7 +147,7 @@ cln_trash() {
 }
 
 #######################################
-# Function to clean the /tmp directory.
+# Cleans the /tmp directory.
 # Deletes empty directories and files
 # older than global limit.
 # Returns:
@@ -162,8 +162,7 @@ cln_tmp() {
 }
 
 #######################################
-# Function to clean log files older than
-# global limit.
+# Cleans log files older than global limit.
 # Returns:
 #   Exit status.
 #######################################
@@ -175,10 +174,9 @@ cln_logs() {
 }
 
 #######################################
-# Function to vacuum journals.
-# Checks for dependencies, tracks space
-# freed if helper function dependency
-# is available (bc).
+# Vacuums journals. Checks for dependencies,
+# tracks space freed if helper function
+# dependency is available (bc).
 # Returns:
 #   Exit status.
 #######################################
@@ -206,6 +204,7 @@ vac_journals() {
 #######################################
 # Helper function to convert journalctl
 # disk usage output to byte value.
+# Echos value in bytes.
 # Returns:
 #   Exit status.
 #######################################
@@ -247,7 +246,7 @@ journalctl_bytes() {
 }
 
 #######################################
-# Function to clean APT cache.
+# Cleans APT cache.
 # Normal mode uses autoclean, aggressive
 # uses clean to remove all cached packages.
 # Checks for dependencies.
@@ -269,7 +268,7 @@ cln_aptcache() {
 }
 
 #######################################
-# Function to remove orphaned packages.
+# Removes orphaned packages.
 # Uses deborphan if available, otherwise
 # falls back to apt-get autoremove.
 # Checks for dependencies.
@@ -299,7 +298,7 @@ cln_orph() {
 }
 
 #######################################
-# Function to iterate over cleaning functions.
+# Iterates over cleaning functions and data arrays.
 # Displays prompts in normal mode. Tracks freed
 # space when possible (exception: vac_journals,
 # cln_orph).
@@ -367,7 +366,7 @@ conf_prompt() {
 }
 
 #######################################
-# Check if commands are available on the
+# Checks if commands are available on the
 # system.
 # Arguments:
 #   Commands to be checked.
@@ -387,7 +386,7 @@ chk_deps() {
 }
 
 #######################################
-# Function to check the size of the target.
+# Checks the size of the target.
 # Echos value in bytes.
 # Arguments:
 #   Target path.
@@ -406,7 +405,7 @@ size_of() {
 }
 
 #######################################
-# Calculate and track space freed,
+# Calculates and tracks space freed,
 # including total value in MBs.
 # Arguments:
 #   Size before in bytes.
