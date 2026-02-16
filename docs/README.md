@@ -58,7 +58,7 @@ It is recommended to be run as an autostart/start-on-login script (see bellow).
 
 ### script-autostart
 
-Helps the user to quickly set a script to automatically run at user login.
+Helps the user to quickly set a script to run automatically on user login.
 
 ### smart-cleanup
 
