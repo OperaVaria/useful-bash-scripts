@@ -50,6 +50,11 @@ These can be selected via the -l|--license command line option, such as:
 ./git_project-init.sh -l mit
 ```
 
+### permissions-reset
+
+Resets the Unix file-system permissions of files and directories to their system defaults.
+Multiple path arguments can be passed, and directories are scanned recursively.
+
 ### rclone-automount
 
 Helps the Linux user to automate mounting cloud storages via the [rclone](https://rclone.org/) command line application.

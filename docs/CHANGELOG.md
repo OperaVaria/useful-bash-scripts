@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Added
+
+- permissions-reset script.
+
+### Changed
 
 - Stylistic tweaks in code and comments.
-- Tweaks in the readme.
+- Tweaks in the docs.
 
 ## [1.0.0] - 2026.02.08
 
