@@ -47,7 +47,7 @@ readonly SCRIPT
 #   Exit status.
 #######################################
 set_args() {
-  local -a positional=()
+  local -a pos_args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help)
@@ -67,27 +67,27 @@ set_args() {
         return 1
         ;;
       *)
-        positional+=("$1")
+        pos_args+=("$1")
         shift
         ;;
     esac
   done
-  if [[ ${#positional[@]} -eq 0 ]]; then
+  if [[ ${#pos_args[@]} -eq 0 ]]; then
     echo "❌ No archive specified" >&2
     return 1
-  elif [[ ${#positional[@]} -gt 2 ]]; then
+  elif [[ ${#pos_args[@]} -gt 2 ]]; then
     echo "❌ Too many positional arguments" >&2
     return 1
-  elif [[ ! -f "${positional[0]}" ]]; then
-    echo "❌ '${positional[0]}' is not a valid file" >&2
+  elif [[ ! -f "${pos_args[0]}" ]]; then
+    echo "❌ '${pos_args[0]}' is not a valid file" >&2
     return 1
   else
-    file="$(realpath "${positional[0]}")"
+    file="$(realpath "${pos_args[0]}")"
   fi
-  if [[ ${#positional[@]} -eq 1 ]]; then
+  if [[ ${#pos_args[@]} -eq 1 ]]; then
     crt_dir
   else
-    destination="${positional[1]}"
+    destination="${pos_args[1]}"
     mkdir -p "${destination}" || return 1
     destination="$(realpath "${destination}")"
   fi

@@ -51,7 +51,7 @@ declare -a VALID_LICENSES=(artistic-v2.0 bsd-2 bsd-3 epl-v1.0 gnu-agpl-v3.0
 #   Exit status.
 #######################################
 set_args() {
-  local positional=()
+  local pos_args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --help|-h)
@@ -76,16 +76,16 @@ set_args() {
         return 1
         ;;
       *)
-        positional+=("$1")
+        pos_args+=("$1")
         shift
         ;;
     esac
   done
-  if [[ ${#positional[@]} -gt 1 ]]; then
+  if [[ ${#pos_args[@]} -gt 1 ]]; then
     echo "❌ Too many positional arguments" >&2
     return 1
-  elif [[ ${#positional[@]} -eq 1 ]]; then
-    project_dir="${positional[0]}"
+  elif [[ ${#pos_args[@]} -eq 1 ]]; then
+    project_dir="${pos_args[0]}"
   fi
   return 0
 }

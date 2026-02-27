@@ -136,7 +136,7 @@ load_cfg() {
 # Returns:
 #   Exit status int.
 #######################################
-val_var() {
+val_vars() {
   # Strings
   [[ -n "${CLOUD_DIR:-}" ]] || { err "Missing CLOUD_DIR in config"; return 1; }
   [[ -n "${LOG_DIR:-}" ]]   || { err "Missing LOG_DIR in config"; return 1; }
@@ -185,7 +185,7 @@ val_remotes() {
 # Returns:
 #   Exit status int.
 #######################################
-val_arr() {
+val_arrs() {
   if [[ ${#REMOTES[@]} -ne ${#MOUNTS[@]} ]] \
     || [[ ${#REMOTES[@]} -ne ${#LOG_FILES[@]} ]] \
     || [[ ${#REMOTES[@]} -ne ${#REMOTE_ARGS[@]} ]]; then
@@ -295,9 +295,9 @@ main() {
   set_args "$@" || exit 1
   chk_rclone || exit 1
   load_cfg || exit 1
-  val_var || exit 1
+  val_vars || exit 1
   val_remotes || exit 1
-  val_arr || exit 1
+  val_arrs || exit 1
 
   echo "🚀 Starting rclone automount script..."
 

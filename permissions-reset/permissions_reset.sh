@@ -47,7 +47,7 @@ FILE_DEFAULT=$(printf '%o' $(( 8#666 - 8#$(umask) )))
 #   Exit status.
 #######################################
 set_args() {
-  local -a positional=()
+  local -a pos_args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help)
@@ -63,21 +63,21 @@ set_args() {
         return 1
         ;;
       *)
-        positional+=("$1")
+        pos_args+=("$1")
         shift
         ;;
     esac
   done
-  if [[ ${#positional[@]} -eq 0 ]]; then
+  if [[ ${#pos_args[@]} -eq 0 ]]; then
     echo "❌ No file or directory specified" >&2
     return 1
   fi
-  for item in "${positional[@]}"; do
-    if [[ ! -f "${item}" ]] && [[ ! -d "${item}" ]]; then
-      echo "❌ '${item}' is not a valid file or directory" >&2
+  for arg in "${pos_args[@]}"; do
+    if [[ ! -f "${arg}" ]] && [[ ! -d "${arg}" ]]; then
+      echo "❌ '${arg}' is not a valid file or directory" >&2
       ((errors++)) || true
     else
-      paths+=("${item}")
+      paths+=("${arg}")
     fi
   done
   if [[ ${#paths[@]} -eq 0 ]]; then
@@ -136,7 +136,7 @@ reset_defaults() {
 # Prints changes, warns on chmod errors.
 # Arguments:
 #   $1 - Chmod mode argument.
-#   $2+ - Target paths.
+#   $@ - Target paths.
 # Returns:
 #   Exit status.
 #######################################
