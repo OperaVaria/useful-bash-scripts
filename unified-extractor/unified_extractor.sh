@@ -134,7 +134,7 @@ add_to_bin() {
 # Detects file mimetype and runs proper
 # extracting binary. Checks if binary
 # is present on the system, and hadles
-# verbose options. 
+# verbose options.
 # Returns:
 #   Exit status.
 #######################################
