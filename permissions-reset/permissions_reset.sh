@@ -11,7 +11,7 @@
 # Dependencies: realpath stat
 #
 # Description: This script resets the Unix file-system permissions of files and
-# directories to the system defaults. Multiple path arguments can be passed,
+# directories to their system defaults. Multiple path arguments can be passed,
 # directories are scanned recursively.
 #
 # Tested on: CachyOS (rolling), GNU bash, 5.3.9(1)-release
@@ -98,8 +98,8 @@ Resets file-system permissions to system defaults recursively
 for the targeted paths.
 
 ARGUMENTS:
-  targets                  Files and directories to reset.
-                           Multiple paths can be passed.
+  targets                  Files and directories to reset
+                           (multiple paths can be passed)
 
 OPTIONS:
   -e, --executables        Keep permissions for executables
@@ -108,51 +108,45 @@ EOF
 }
 
 #######################################
-# Sets permissions to global default values
-# with reset_target helper function.
+# Resets permissions to global default
+# values with set_target function.
 # Ignores executables if keep_exec is true.
 # Registers find call errors to global counter.
 #######################################
-set_defaults() {
-  export -f reset_target
+reset_defaults() {
+  export -f set_permissions
   for path in "${paths[@]}"; do
     find "${path}" -type d -exec \
-      bash -c 'reset_target "$@"' _ "$DIR_DEFAULT" {} + \
+      bash -c 'set_permissions "$@"' _ "${DIR_DEFAULT}" {} + \
       || { ((errors++)) || true; }
     if [[ ${keep_exec} -eq 1 ]]; then
       find "${path}" -type f ! -perm /111 -exec \
-        bash -c 'reset_target "$@"' _ "$FILE_DEFAULT" {} + \
+        bash -c 'set_permissions "$@"' _ "${FILE_DEFAULT}" {} + \
         || { ((errors++)) || true; }
     else
       find "${path}" -type f -exec \
-        bash -c 'reset_target "$@"' _ "$FILE_DEFAULT" {} + \
+        bash -c 'set_permissions "$@"' _ "${FILE_DEFAULT}" {} + \
         || { ((errors++)) || true; }
     fi
   done
 }
 
 #######################################
-# Helper function to change file-system
-# permissions for target paths.
-# Echoes change information,
-# warns on chmod errors.
+# Sets file-system permissions for target paths.
+# Prints changes, warns on chmod errors.
 # Arguments:
-#   $1 - Permission octal code.
+#   $1 - Chmod mode argument.
 #   $2+ - Target paths.
 # Returns:
-#   Exit status (chmod error count).
+#   Exit status.
 #######################################
-reset_target() {
-  local octal="$1"
+set_permissions() {
+  local mode="$1"
   local -i rc=0
   shift
   for target in "$@"; do
-    local permissions resolved
-    resolved="$(realpath "${target}")"
-    if chmod "${octal}" "${target}"; then
-      permissions="$(stat -c "%A" "${target}" | tr -d "\n")"
-      echo "'${resolved}' permissions changed to: ${permissions}"
-    else
+    if ! chmod -c "${mode}" "${target}"; then
+      resolved="$(realpath "${target}")"
       echo "❌ Failed to change permissions for '${resolved}'" >&2
       rc=1
     fi
@@ -171,7 +165,7 @@ main() {
   declare -gi errors=0 keep_exec=0
   declare -ga paths=()
   set_args "$@" || exit 1
-  set_defaults || exit 1
+  reset_defaults || exit 1
   if [[ ${errors} -eq 0 ]]; then
     echo "✅ Process completed successfully"
   else
