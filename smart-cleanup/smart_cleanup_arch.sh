@@ -60,7 +60,7 @@ set_mode() {
         no_confirm=1
         ;;
       *)
-        echo -e "❌ Unknown argument '${arg}'" >&2
+        echo "❌ Unknown argument '${arg}'" >&2
         return 1
         ;;
     esac
@@ -99,7 +99,7 @@ EOF
 #######################################
 set_aggress() {
   if [[ "${aggressive}" -eq 1 ]]; then
-    echo -e "   ⚠️ Running in AGGRESSIVE mode"
+    echo "   ⚠️ Running in AGGRESSIVE mode"
     day_limit="${AGGRESSIVE_DAY_LIMIT}"
     conf_prompt "This will remove more data than normal mode. Continue?" \
       || return 1
@@ -375,7 +375,7 @@ chk_deps() {
       command -v "${cmd}" >/dev/null 2>&1 || missing+=("${cmd}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
-    echo -e "   ❌ Missing required commands: ${missing[*]}" >&2
+    echo "   ❌ Missing required commands: ${missing[*]}" >&2
     return 1
   fi
   return 0
@@ -432,7 +432,7 @@ main() {
   declare -gi aggressive=0 no_confirm=0 day_limit=0  total_freed=0
   set_mode "$@" || exit 1
   sudo -v || { echo "❌ Sudo authentication failed"; exit 1; }
-  echo -e "🧹 Smart Cleanup Script (Arch)"
+  echo "🧹 Smart Cleanup Script (Arch)"
   set_aggress || exit 1
   hr
 
@@ -440,7 +440,7 @@ main() {
   func_loop
 
   # Final Report.
-  echo -e "✅ Cleanup complete"
+  echo "✅ Cleanup complete"
   [[ "${total_freed}" -gt 0 ]] \
     && echo "   Total freed: ${total_freed} MB"
 
