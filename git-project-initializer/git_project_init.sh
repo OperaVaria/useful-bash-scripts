@@ -38,8 +38,8 @@ set -euo pipefail
 # Set defaults:
 project_dir="$(pwd -P)"
 license="gnu-gpl-v3.0"
-declare -a SUBDIRS=(bin docs src tests)
-declare -a VALID_LICENSES=(artistic-v2.0 bsd-2 bsd-3 epl-v1.0 gnu-agpl-v3.0
+readonly -a SUBDIRS=(bin docs src tests)
+readonly -a VALID_LICENSES=(artistic-v2.0 bsd-2 bsd-3 epl-v1.0 gnu-agpl-v3.0
                            gnu-fdl-v1.3 gnu-gpl-v1.0 gnu-gpl-v2.0 gnu-gpl-v3.0
                            gnu-lgpl-v2.1 gnu-lgpl-v3.0 mit mpl-v2.0 unlicense)
 
@@ -85,7 +85,7 @@ set_args() {
     echo "❌ Too many positional arguments" >&2
     return 1
   elif [[ ${#pos_args[@]} -eq 1 ]]; then
-    project_dir="${pos_args[0]}"
+    project_dir="$(realpath -m "${pos_args[0]}")"
   fi
   return 0
 }
@@ -133,18 +133,19 @@ in_array() {
 }
 
 #######################################
-# Checks project_dir, refuses root or home
+# Checks directory, refuses root or home
 # directory.
+# Arguments:
+#   Directory to be checked.
 # Returns:
 #   Exit status.
 #######################################
 chk_dir() {
-  local resolved
-  resolved="$(realpath -m "${project_dir}")"
-  if [[ "${resolved}" == "/" ]]; then
+  local dir="$1"
+  if [[ "${dir}" == "/" ]]; then
     echo "❌ Refusing to run in root directory" >&2
     return 1
-  elif [[ "${resolved}" == "${HOME}" ]]; then
+  elif [[ "${dir}" == "${HOME}" ]]; then
     echo "❌ Refusing to run in home directory" >&2
     return 1
   fi
@@ -172,40 +173,44 @@ chk_deps() {
 }
 
 #######################################
-# Creates project directory, with error
-# handling if it already exists.
+# Creates directory, with error handling,
+# if it already exists.
 # Returns:
 #   Exit status.
 #######################################
 crt_dir() {
-  if [[ -e "${project_dir}" && ! -d "${project_dir}" ]]; then
-    echo "❌ '${project_dir}' exists but is not a directory" >&2
+  local dir="$1"
+  if [[ -e "${dir}" && ! -d "${dir}" ]]; then
+    echo "❌ '${dir}' exists but is not a directory" >&2
     return 1
-  elif [[ -d "${project_dir}" ]]; then
-    echo "📁 '${project_dir}' already exists."
+  elif [[ -d "${dir}" ]]; then
+    echo "📁 '${dir}' already exists."
     read -t 30 -p "Continue anyway? (Y/N): " -n 1 -r \
       || { echo -e "\n⏱️ Timed out waiting for response"; return 1; }
     echo
     [[ ! "${REPLY}" =~ ^[Yy]$ ]] && return 1
   else
-    mkdir -p "${project_dir}"
+    mkdir -p "${dir}"
   fi
   return 0
 }
 
 #######################################
 # Downloads template files with error handling.
+# Arguments:
+#   License filename.
 #######################################
 dwl_templates() {
+  local lic_filename="$1"
   curl -sSLo COPYING.md \
-    "https://raw.githubusercontent.com/IQAndreas/markdown-licenses/refs/heads/master/${license}.md" \
-      || echo "⚠️ Failed to download COPYING.md" >&2
+    "https://raw.githubusercontent.com/IQAndreas/markdown-licenses/refs/heads/master/${lic_filename}" \
+      || { echo "⚠️ Failed to download COPYING.md" >&2; rm -f COPYING.md; }
   curl -sSLo docs/CHANGELOG.md \
     "https://raw.githubusercontent.com/olivierlacan/keep-a-changelog/refs/heads/main/CHANGELOG.md" \
-      || echo "⚠️ Failed to download CHANGELOG.md" >&2
+      || { echo "⚠️ Failed to download CHANGELOG.md" >&2; rm -f docs/CHANGELOG.md; }
   curl -sSLo docs/README.md \
     "https://raw.githubusercontent.com/me-and-company/readme-template/refs/heads/master/README.md" \
-      || echo "⚠️ Failed to download README.md" >&2
+      || { echo "⚠️ Failed to download README.md" >&2; rm -f docs/README.md; }
 }
 
 #######################################
@@ -227,6 +232,8 @@ EOF
 # Performs initial git commands with error
 # handling. Only commits if repository is not
 # empty.
+# Returns:
+#   Exit status.
 #######################################
 git_steps() {
   git init
@@ -238,7 +245,9 @@ git_steps() {
       echo "💡 Can be fixed by running:" >&2
       echo "git config --global user.name 'Your Name'" >&2
       echo "git config --global user.email 'you@example.com'" >&2
+      return 1
     }
+  return 0
 }
 
 #######################################
@@ -251,20 +260,22 @@ git_steps() {
 main() {
   # Handle positional arguments and pre-run checks.
   set_args "$@" || exit 1
-  chk_dir || exit 1
-  chk_deps curl git realpath
+  chk_dir "${project_dir}" || exit 1
+  chk_deps curl git || exit 1
 
   # Create directories and files.
-  crt_dir || exit 1
+  crt_dir "${project_dir}" || exit 1
   cd "${project_dir}"
   mkdir -p "${SUBDIRS[@]}"
-  dwl_templates
+  dwl_templates "${license}.md"
   crt_gitignore
 
-  # Initialize repository.
-  git_steps
-
-  echo "✅ Project initialized successfully in '${project_dir}'"
+  # Initialize repository and exit message.
+  if git_steps; then
+    echo "✅ Project initialized successfully in '${project_dir}'"
+  else
+    echo "⚠️ Project partially initialized in '${project_dir}'"
+  fi
 
   return 0
 }
