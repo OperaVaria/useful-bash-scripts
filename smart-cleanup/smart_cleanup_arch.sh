@@ -142,7 +142,9 @@ cln_trash() {
     echo "   ⚠️ Trash directory not found, skipping" >&2
     return 0
   fi
-  rm -rf "${trash}/files/"* "${trash}/info/"* 2>/dev/null || true
+  find "${trash}/files/" -mindepth 1 -delete 2>/dev/null || true
+  find "${trash}/info/" -mindepth 1 -name "*.trashinfo" \
+    -delete 2>/dev/null || true
   return 0
 }
 
@@ -168,7 +170,7 @@ cln_tmp() {
 #######################################
 cln_logs() {
   echo "📜 Cleaning logs older than ${day_limit} days"
-  sudo find /var/log/*.log -type f -mtime +"${day_limit}" \
+  sudo find /var/log/ -name "*.log" -type f -mtime +"${day_limit}" \
     -delete 2>/dev/null || true
   return 0
 }
