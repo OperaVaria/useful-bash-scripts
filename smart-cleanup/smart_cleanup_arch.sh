@@ -131,7 +131,8 @@ cln_cache() {
 }
 
 #######################################
-# Empties the Trash directory.
+# Empties the Trash directory following
+# the XDG Trash specification.
 # Returns:
 #   Exit status.
 #######################################
@@ -142,9 +143,13 @@ cln_trash() {
     echo "   ⚠️ Trash directory not found, skipping" >&2
     return 0
   fi
-  find "${trash}/files/" -mindepth 1 -delete 2>/dev/null || true
-  find "${trash}/info/" -mindepth 1 -name "*.trashinfo" \
-    -delete 2>/dev/null || true
+  if [[ -d "${trash}/files" ]]; then
+    find "${trash}/files/" -mindepth 1 -delete 2>/dev/null || true
+  fi
+  if [[ -d "${trash}/info" ]]; then
+    find "${trash}/info/" -mindepth 1 -name "*.trashinfo" \
+      -delete 2>/dev/null || true
+  fi
   return 0
 }
 
@@ -296,45 +301,35 @@ cln_orph() {
 }
 
 #######################################
-# Iterates over cleaning functions and data arrays.
-# Displays prompts in normal mode. Tracks freed
-# space when possible (exception: vac_journals,
-# cln_orph).
+# Iterates over cleaning tasks.
+# Task format: "function:prompt:directory"
+# An empty directory field skips size tracking.
+# Displays prompts in interactive mode.
+# Tracks freed space when possible.
 # Returns:
 #   Exit status.
 #######################################
 func_loop() {
+  local -a tasks=(
+    "cln_cache:Clean the cache?:${HOME}/.cache"
+    "cln_trash:Empty the Trash?:${HOME}/.local/share/Trash"
+    "cln_tmp:Clean the temp directory?:/tmp"
+    "cln_logs:Clean the logs?:/var/log"
+    "vac_journals:Vacuum the journals?:"
+    "cln_paccache:Clean the pacman cache?:/var/cache/pacman/pkg"
+    "cln_orph:Remove orphaned packages?:"
+  )
+  local func prompt dir
   local -i size_before size_after
-  local -a funcs=("cln_cache"
-                  "cln_trash"
-                  "cln_tmp"
-                  "cln_logs"
-                  "vac_journals"
-                  "cln_paccache"
-                  "cln_orph")
-  declare -a prompts=("Clean the cache?"
-                      "Empty the Trash?"
-                      "Clean the temp directory?"
-                      "Clean the logs?"
-                      "Vacuum the journals?"
-                      "Clean the pacman cache?"
-                      "Remove orphaned packages?")
-  local -a dirs=("${HOME}/.cache"
-                  "${HOME}/.local/share/Trash"
-                  "/tmp"
-                  "/var/log"
-                  ""
-                  "/var/cache/pacman/pkg"
-                  "")
-  for ((i=0; i<${#funcs[@]}; i++)); do
-    conf_prompt "${prompts[$i]}" || continue
-    if [[ "${funcs[$i]}" == "vac_journals" ]] \
-      || [[ "${funcs[$i]}" == "cln_orph" ]]; then
-      ${funcs[$i]}
+  for task in "${tasks[@]}"; do
+    IFS=':' read -r func prompt dir <<< "${task}"
+    conf_prompt "${prompt}" || { hr; continue; }
+    if [[ -z "${dir}" ]]; then
+      "${func}"
     else
-      size_before=$(size_of "${dirs[$i]}") || size_before=0
-      ${funcs[$i]}
-      size_after=$(size_of "${dirs[$i]}") || size_after=0
+      size_before=$(size_of "${dir}") || size_before=0
+      "${func}"
+      size_after=$(size_of "${dir}") || size_after=0
       track_freed "${size_before}" "${size_after}"
     fi
     hr
@@ -404,7 +399,7 @@ size_of() {
 
 #######################################
 # Calculates and tracks space freed,
-# including total value in MBs.
+# including total value in KBs.
 # Arguments:
 #   Size before in bytes.
 #   Size after in bytes.
@@ -414,11 +409,11 @@ track_freed() {
   local -i size_after="$2"
   local -i freed=$((size_before - size_after))
   if [[ "${freed}" -gt 0 ]]; then
-    local -i freed_mb=$((freed / 1048576))
-    total_freed=$((total_freed + freed_mb))
-    echo "   Freed: ${freed_mb} MB"
+    local -i freed_kb=$((freed / 1024))
+    total_freed=$((total_freed + freed_kb))
+    echo "   Freed: ${freed_kb} KB"
   else
-    echo "   Freed: 0 MB"
+    echo "   Freed: 0 KB"
   fi
 }
 
@@ -444,7 +439,7 @@ main() {
   # Final Report.
   echo "✅ Cleanup complete"
   [[ "${total_freed}" -gt 0 ]] \
-    && echo "   Total freed: ${total_freed} MB"
+    && echo "   Total freed: ${total_freed} KB"
 
   return 0
 }
