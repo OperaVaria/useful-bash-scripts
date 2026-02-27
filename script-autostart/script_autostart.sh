@@ -8,7 +8,7 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# Dependencies: realpath
+# Dependencies: -
 #
 # Description: This small command line utility helps the user to easily set up
 # a script to run automatically at login.

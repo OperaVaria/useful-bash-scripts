@@ -8,7 +8,7 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# Dependencies: curl git realpath
+# Dependencies: curl git
 #
 # Description: This script sets up a boilerplate Git project by creating the
 # recommended directories, adding file templates, and initializing the Git

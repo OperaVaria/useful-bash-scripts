@@ -8,7 +8,7 @@
 # https://github.com/OperaVaria/useful-bash-scripts
 # Version 1.0.0
 #
-# Dependencies: realpath stat
+# Dependencies: -
 #
 # Description: This script resets the Unix file-system permissions of files and
 # directories to their system defaults. Multiple path arguments can be passed,
