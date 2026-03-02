@@ -109,13 +109,13 @@ val_script() {
   first_line=$(head -n 1 "${script}" 2>/dev/null || echo "")
   if [[ ! -s "${script}" ]]; then
     echo "⚠️ Warning: Script file is empty" >&2
-    ((issues++))
+    ((issues++)) || true
   elif [[ ! "${first_line}" =~ ^#! ]]; then
     echo "⚠️ Warning: No shebang found" >&2
-    ((issues++))
+    ((issues++)) || true
   elif [[ ! "${first_line}" =~ (bash|sh|zsh|ksh|fish|dash) ]]; then
-    echo "⚠️ Warning: Shebang doesn't reference a known shell: ${first_line}"
-    ((issues++))
+    echo "⚠️ Warning: Shebang doesn't reference a known shell: ${first_line}" >&2
+    ((issues++)) || true
   fi
   if [[ "${issues}" -gt 0 ]]; then
     conf_prompt "Continue despite warning?" || return 1
@@ -125,14 +125,16 @@ val_script() {
 
 #######################################
 # Makes script file executable.
-# Prompt only in interactive mode.
+# Error handling included.
 # Returns:
 #   Exit status.
 #######################################
 set_exec() {
   if ! [[ -x "${script}" ]]; then
-    conf_prompt "Script is not executable. Change permissions?" || return 0
-    chmod +x "${script}"
+    if ! chmod +x "${script}"; then
+      echo "❌ Failed to make script file executable" >&2
+      return 1
+    fi
   fi
   return 0
 }
@@ -152,6 +154,9 @@ crt_autostart() {
   desktop_file="${autostart_dir}/${script_name}.desktop"
   if ! mkdir -p "${autostart_dir}"; then
     echo "❌ Failed to create autostart directory" >&2
+    return 1
+  elif [[ ! -w "${autostart_dir}" ]]; then
+    echo "❌ Autostart directory is set to read only" >&2
     return 1
   elif [[ -e "${desktop_file}" ]]; then
     conf_prompt "⚠️ Autostart entry already exists. Overwrite?" || return 1
