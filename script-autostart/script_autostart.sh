@@ -49,6 +49,10 @@ set_args() {
         show_help
         exit 0
         ;;
+      -t|--terminal)
+        terminal=1
+        shift
+        ;;
       -y|--yes)
         no_confirm=1
         shift
@@ -92,6 +96,7 @@ ARGUMENTS:
 
 OPTIONS:
   -h, --help                Show this help message
+  -t, --terminal            Add 'Terminal' key to .desktop file
   -y, --yes                 Skip confirmation prompts
 EOF
 }
@@ -148,10 +153,11 @@ set_exec() {
 #   Exit status.
 #######################################
 crt_autostart() {
-  local autostart_dir script_name desktop_file
+  local autostart_dir script_name desktop_file terminal_key
   autostart_dir="${HOME}/.config/autostart"
   script_name=$(basename "${script}")
   desktop_file="${autostart_dir}/${script_name}.desktop"
+  [[ "${terminal}" -eq 1 ]] && terminal_key="true" || terminal_key="false"
   if ! mkdir -p "${autostart_dir}"; then
     echo "❌ Failed to create autostart directory" >&2
     return 1
@@ -168,6 +174,7 @@ Icon=application-x-shellscript
 Name=${script_name}
 Type=Application
 Hidden=false
+Terminal=${terminal_key}
 X-KDE-AutostartScript=true
 X-GNOME-Autostart-enabled=true
 Comment=Autostart script created by script_autostart.sh
@@ -204,7 +211,7 @@ conf_prompt() {
 #######################################
 main() {
   declare -g script
-  declare -gi no_confirm=0
+  declare -gi no_confirm=0 terminal=0
   set_args "$@" || exit 1
   val_script || exit 1
   set_exec || exit 1
