@@ -98,7 +98,7 @@ Resets file-system permissions to system defaults recursively
 for the targeted paths.
 
 ARGUMENTS:
-  targets                  Files and directories to reset
+  targets                  Files and/or directories to reset
                            (multiple paths can be passed)
 
 OPTIONS:
