@@ -217,12 +217,12 @@ vac_journals() {
 #######################################
 journalctl_bytes() {
     local journal_size number unit byte_result
+    local LC_ALL="C"
     journal_size=$(sudo journalctl --disk-usage 2>/dev/null \
         | grep -oE '[0-9]+\.?[0-9]*[BKMGT]')
     [[ -z "${journal_size}" ]] && return 1
     number="${journal_size::-1}"
-    unit="${journal_size: -1}"
-    LC_ALL="C"
+    unit="${journal_size: -1}"    
     case "${unit}" in
         B)
           byte_result="${number}"
