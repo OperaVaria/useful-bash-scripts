@@ -163,7 +163,7 @@ crt_autostart() {
   fi
   if ! cat > "${desktop_file}" <<EOF
 [Desktop Entry]
-Exec=${script}
+Exec="${script}"
 Icon=application-x-shellscript
 Name=${script_name}
 Type=Application
