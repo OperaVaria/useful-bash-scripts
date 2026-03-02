@@ -105,19 +105,19 @@ EOF
 #######################################
 val_script() {
   local first_line
-  local -i issues=0
+  local -i issue=0
   first_line=$(head -n 1 "${script}" 2>/dev/null || echo "")
   if [[ ! -s "${script}" ]]; then
     echo "⚠️ Warning: Script file is empty" >&2
-    ((issues++)) || true
+    issue=1
   elif [[ ! "${first_line}" =~ ^#! ]]; then
     echo "⚠️ Warning: No shebang found" >&2
-    ((issues++)) || true
+    issue=1
   elif [[ ! "${first_line}" =~ (bash|sh|zsh|ksh|fish|dash) ]]; then
     echo "⚠️ Warning: Shebang doesn't reference a known shell: ${first_line}" >&2
-    ((issues++)) || true
+    issue=1
   fi
-  if [[ "${issues}" -gt 0 ]]; then
+  if [[ "${issue}" -gt 0 ]]; then
     conf_prompt "Continue despite warning?" || return 1
   fi
   return 0
