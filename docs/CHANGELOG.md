@@ -7,14 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026.03.02
+
 ### Added
 
 - permissions-reset script.
+- script-autostart: add terminal key flag.
 
 ### Changed
 
-- Stylistic tweaks in code and comments.
-- Tweaks in the docs.
+- smart-cleanup: file finding improved
+                 space freed now in KBs.
+- Tweaks in code and comments.
+- Updated docs.
+
+### Fixed
+
+- rclone-automount: wrong count variable bug.
 
 ## [1.0.0] - 2026.02.08
 
@@ -22,5 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[unreleased]: https://github.com/OperaVaria/useful-bash-scripts/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/OperaVaria/useful-bash-scripts/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/OperaVaria/useful-bash-scripts/releases/tag/v1.1.0
 [1.0.0]: https://github.com/OperaVaria/useful-bash-scripts/releases/tag/v1.0.0
