@@ -239,7 +239,7 @@ command_loop() {
     # Validate mount dirs.
     if mountpoint -q "${mount_path}" 2>/dev/null ; then
       echo "⚠️  ${MOUNTS[$i]} already mounted, skipping"
-      ((fail_count++))
+      ((skip_count++))
       continue
     elif [[ -d "${mount_path}" \
       && -n "$(ls -A "${mount_path}" 2>/dev/null)" ]]; then
