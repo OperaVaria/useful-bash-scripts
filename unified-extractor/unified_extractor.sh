@@ -253,7 +253,7 @@ crt_dir() {
 # Returns:
 #   Exit status.
 #######################################
-extract() {
+main() {
   declare -g destination file
   declare -gi verbose=0
   set_args "$@"
@@ -265,4 +265,4 @@ extract() {
 }
 
 # Launch main function.
-extract "$@"
+main "$@"
