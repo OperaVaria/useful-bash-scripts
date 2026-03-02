@@ -122,7 +122,7 @@ EOF
 # Copies script file to /usr/local/bin.
 #######################################
 add_to_bin() {
-  conf_prompt "Are you sure you want to add 'extract' to usr/local/bin?" \
+  conf_prompt "Are you sure you want to add 'extract' to /usr/local/bin?" \
     || return 1
   chmod +x "${SCRIPT}"
   sudo cp "${SCRIPT}" /usr/local/bin/extract
