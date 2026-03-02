@@ -6,7 +6,7 @@
 #
 # Part of the "useful-bash-scripts" project:
 # https://github.com/OperaVaria/useful-bash-scripts
-# Version 1.0.0
+# Version 1.1.0
 #
 # Dependencies: -
 #
