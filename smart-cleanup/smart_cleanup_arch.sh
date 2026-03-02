@@ -175,8 +175,8 @@ cln_tmp() {
 #######################################
 cln_logs() {
   echo "📜 Cleaning logs older than ${day_limit} days"
-  sudo find /var/log/ -name "*.log" -type f -mtime +"${day_limit}" \
-    -delete 2>/dev/null || true
+  sudo find /var/log/ -name "*.log" -o -name "*.log.*" -type f \
+    -mtime +"${day_limit}" -delete 2>/dev/null || true
   return 0
 }
 
